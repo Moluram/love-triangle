@@ -3,39 +3,27 @@
  * @returns number of love triangles
  */
 module.exports = function getLoveTrianglesCount(preferences = []) {
-  let loveTriangles = [];
+  let length = 3
+  let lovers = [];
+  let counter = 0;
 
-  for (person of preferences) {
-    let triangle = getLoveTriangle([], person, preferences, loveTriangles)
+  preferences.forEach(person => {
+    if (!lovers[person]) {
+      let triangle = getLoveTriangle(person, preferences, length)
 
-    if (triangle.length > 0 && isTriangle(triangle, preferences)) {
-      loveTriangles = loveTriangles.concat(triangle)
+      if (triangle[0] != triangle[length - 1] && preferences[triangle[length - 1] - 1] === triangle[0]) {
+        counter++;
+        triangle.forEach(t => lovers[t] = true)
+      }
     }
-  }
+  })
 
-  return loveTriangles.length / 3;
+  return counter;
 };
 
-function getLoveTriangle(triangle, person, preferences, loveTriangles) {
-
-  if (loveTriangles.some(t => {return person === t})) {
-    return [];
-  }
-
+function getLoveTriangle(person, preferences, length, triangle = []) {
   triangle.push(person)
 
-  if (triangle.length == 3) {
-    return triangle;
-  }
-
-  return getLoveTriangle(triangle, preferences[person - 1], preferences, loveTriangles)
+  return triangle.length === length ? triangle : 
+          getLoveTriangle(preferences[person - 1], preferences, length, triangle)
 }
-
-function isTriangle(triangle, preferences) {
-  return triangle[0] != triangle[1] 
-      && triangle[1] != triangle[2] 
-      && triangle[0] != triangle[2]
-      && preferences[preferences[preferences[triangle[0] - 1] - 1] - 1] === triangle[0];
-}
-
-
